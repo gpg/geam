@@ -36,8 +36,8 @@
 #include <stdarg.h>
 #include <assert.h>
 #include <ctype.h>
-#include <sys/time.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 #include <assert.h>
 #include <pth.h>

@@ -1,4 +1,4 @@
 
 SUBDIRS = lib src tests doc
-EXTRA_DIST = geam.prj TODO db2html.in
+EXTRA_DIST = TODO db2html.in
 

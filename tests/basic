@@ -62,7 +62,6 @@ while geamd_pid=`sed -n 's/^.*(pid=\([0-9]*\).*$/\1/p' geamd.log`; \
 done
 echo
 
-geamd_pid=""
 inner_pid=""
 outer_pid=""
 

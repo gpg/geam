@@ -1416,7 +1416,7 @@ check_decryption_callback( PROXY_STATE proxy, RFC822 msg,
 	goto failure;
     }
 
-    /* not that we have setup our workers we can relax and watch GnuPG's
+    /* now that we have setup our workers we can relax and watch GnuPG's
      * status messages */
     if( rw_init( status_fd ) ) {
 	log_error("fd %d: rw_init failed\n", status_fd );
@@ -1508,10 +1508,10 @@ run_check_decryption_command( PROXY_STATE proxy, RFC822 msg )
 	free( argv[i] );
     free( argv );
 
-    if( status ) {
-	log_error("%s check_decryption failed: status=%d\n", proxy->sid, status );
-	return -1;
-    }
+    /* We can just ignore errors here */
+    if ( status && opt.verbose ) 
+	log_info ("%s check_decryption failed: status=%d\n",
+                 proxy->sid, status );
 
     return 0;
 }

@@ -6,14 +6,14 @@
 # wildcards are not yet implemented
 #
 # Note:  When we talk about addresses here we mean the envelope addresses
-#	 and not those found in the rc822 headers.
+#	 and not those found in the rfc822 headers.
 #
 # Special names on the right side:
 #    DECRYPT  - Allow decryption for these recipients
 #
 # Encrypt all mail to g-n-u.de using the key "@g-n-u.de".  This means that
 # everything for the domain with all mailboxes and all subdomains will be
-# encrupted.
+# encrypted.
 
 g-n-u.de : g-n-u.de
 

@@ -11,7 +11,7 @@ AM_CONFIG_HEADER(config.h)
 dnl
 dnl The version number goes here
 dnl
-AM_INIT_AUTOMAKE(geam,0.8.1)
+AM_INIT_AUTOMAKE(geam,0.8.2)
 
 
 AM_MAINTAINER_MODE
@@ -34,8 +34,14 @@ AC_CHECK_FUNCS(memicmp stpcpy strlwr strtoul memmove stricmp)
 
 
 AM_PATH_PTH(1.2.1,,
-   AC_MSG_ERROR(Test for Pth failed. Download it from ftp://ftp.gnu.org/gnu/pth/))
-
+   AC_MSG_ERROR([[
+***
+*** Portable Threads Library (pth) found. Please install it first. 
+*** Download it from ftp://ftp.gnu.org/gnu/pth/
+*** On a Debian GNU/Linux system you might want to try 
+***   apt-get install libpth-dev
+***
+   ]]))
 
 dnl
 dnl Checks for header files
@@ -79,5 +85,3 @@ doc/version.sgml
 doc/localstyle.dsl
 tests/Makefile
 ])
-
-dnl *-*wedit:notab*-*  Please keep this as the last line.

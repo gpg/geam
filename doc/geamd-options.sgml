@@ -140,7 +140,7 @@
       <listitem>
 	<para>Use &ParmFile; as the decrypt file.  If it is not an
 	absolute filename, it is relative to the configuration directory.
-	Default is <filename>encrypt</filename>.</para>
+	Default is <filename>decrypt</filename>.</para>
       </listitem>
     </varlistentry>
 

@@ -1,13 +1,13 @@
 # Geam - list of recipients which should receive their mail encrypted.
 #
 # Format is:  mail address, encryption system, keyid.
-# Leading and trailing white spaces are ignore, lines starting with a hash
-# sign and blank lines are ignored.
+# Leading and trailing white spaces are ignored, lines starting with a 
+# hash sign and blank lines are ignored.
 # An example for OpenPGP is:
 #  joe@foobar.net  gpg	016C7F5C72E26B8DE642D49A5ADFD255F7B080AD
-# Here we use have to use the fingerprint of the encryption key
-# the mail adress is not directly used but subject to alias expansion.
-# you may use any string without blanks in it here.
+# We have to use the fingerprint of the encryption key here.
+# The mail address is not directly used but subject to alias expansion.
+# You may use any string without blanks in it here.
 # You may also use the short or long keyID instead of the fingerprint.
 
   joe@foobar.net  gpg  016C7F5C72E26B8DE642D49A5ADFD255F7B080AD

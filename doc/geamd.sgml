@@ -57,7 +57,7 @@
   </refmeta>
   <refnamediv>
     <refname>geamd</refname>
-    <refpurpose>A SMTP encryption daemon</>
+    <refpurpose>An SMTP encryption daemon</>
   </refnamediv>
   <refsynopsisdiv>
     <cmdsynopsis>
