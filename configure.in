@@ -1,0 +1,83 @@
+dnl
+dnl Configure script source for GEAM
+dnl
+dnl (Process this file with autoconf to produce a configure script.)
+AC_REVISION($Revision$)dnl
+AC_PREREQ(2.13)
+
+AC_INIT(src/geamd.c)
+AM_CONFIG_HEADER(config.h)
+
+dnl
+dnl The version number goes here
+dnl
+AM_INIT_AUTOMAKE(geam,0.8.1)
+
+
+AM_MAINTAINER_MODE
+
+dnl
+dnl Checks for programs
+dnl
+AC_PROG_CC
+AC_STDC_HEADERS
+AC_ARG_PROGRAM
+AC_PROG_RANLIB
+GPH_PROG_DOCBOOK
+
+dnl
+dnl Checks for libraries
+dnl
+
+dnl These are needed by libutil:
+AC_CHECK_FUNCS(memicmp stpcpy strlwr strtoul memmove stricmp)
+
+
+AM_PATH_PTH(1.2.1,,
+   AC_MSG_ERROR(Test for Pth failed. Download it from ftp://ftp.gnu.org/gnu/pth/))
+
+
+dnl
+dnl Checks for header files
+dnl
+
+
+dnl
+dnl Checks for typedefs and structures
+dnl
+
+GNUPG_CHECK_TYPEDEF(byte, HAVE_BYTE_TYPEDEF)
+
+
+dnl
+dnl Checks for compiler features
+dnl
+
+dnl
+dnl Checks for library functions
+dnl
+
+
+dnl
+dnl Checks for system services
+dnl
+
+
+if test "$GCC" = yes; then
+    CFLAGS="$CFLAGS -Wall -Wcast-align -Wshadow -Wstrict-prototypes"
+fi
+
+
+AC_OUTPUT_COMMANDS([chmod +x db2html])
+AC_OUTPUT([
+Makefile
+db2html
+lib/Makefile
+src/Makefile
+doc/Makefile
+doc/version.sgml
+doc/localstyle.dsl
+tests/Makefile
+])
+
+dnl *-*wedit:notab*-*  Please keep this as the last line.

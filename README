@@ -1,0 +1,21 @@
+	    GEAM Encrypts Automagically Mail
+		    Version 0.8
+
+
+Installation:
+
+  ./configure
+  make
+  make install
+
+You need at least GnuPG version 1.0.1d	and pth-1.2.1
+
+To test the daemon, you shoud do a "make checks". If this
+faild, please make sure that there are no daemons from previous
+test hanging around.
+
+The man page is geamd(8).
+
+A German manual is available as doc/manual.de.html or in
+Postscript as doc/manual.de.ps .
+

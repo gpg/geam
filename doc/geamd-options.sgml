@@ -1,0 +1,291 @@
+<!-- geamd-options.sgml - the options part of geamd's man page
+       Copyright (C) 2000 Werner Koch, Duesseldorf
+
+  This file is part of GEAM.
+
+  GEAM is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  GEAM is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+-->
+
+<refsect1 lang="en">
+  <title>OPTIONS</title>
+
+  <para>Long options can be put in the configuration file
+  (default: <filename>/etc/geam/geamd.conf</filename>).  Do not
+  write the two dashes, but simply the name of the option and
+  any required arguments.  Lines with a hash as the first
+  non-white-space character are ignored.  Commands may be put in
+  this file too, but that does not make sense.</para>
+
+  <para>&geamd; recognizes these options:</para>
+
+  <variablelist>
+
+    <varlistentry>
+      <term><option>---inner-host-name</option> &ParmName;</term>
+      <listitem>
+	<para>Use the host named &ParmName; as a smarthost to forward
+	all messages which either get decrypted or were not generated locally.
+	Default is <systemitem>localhost</systemitem>.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---outer-host-name</option> &ParmName;</term>
+      <listitem>
+	<para>Use the host named &ParmName; as a smarthost to forward
+	all messages which are intended for the outside.
+	Default is <systemitem>localhost</systemitem>.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---inner-host-port</option> &ParmN;</term>
+      <listitem>
+	<para>Connect to the inner host on port &ParmN;. Default is 25.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---outer-host-port</option> &ParmN;</term>
+      <listitem>
+	<para>Connect to the outer host on port &ParmN;. Default is 25.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>-v</option>, <option>---verbose</option></term>
+      <listitem>
+	<para>Increase logging verbosity. This may be changed at runtime by
+	using one of the signals.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>-q</option>, <option>---quiet</option></term>
+      <listitem>
+	<para>Be more quiet.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---debug</option> &ParmFlags;</term>
+      <listitem>
+	<para>Set debugging flags. All flags are or-ed and &ParmFlags; may
+	be given in C syntax (e.g. 0x0042).</para>
+	<variablelist>
+	  <varlistentry>
+	    <term><option>1</option></term>
+	    <listitem><para>Enable general debugging info.</para></listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><option>2</option></term>
+	    <listitem><para>Show status info of the encryption program.</para></listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><option>4</option></term>
+	    <listitem><para>Show the SMTP commands.</para></listitem>
+	  </varlistentry>
+	</variablelist>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---no-fork</option></term>
+      <listitem>
+	<para>Do not run as a daemon.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---config</option> &ParmFile;, <option>-C</option> &ParmFile;</term>
+      <listitem>
+	<para>Read options from &ParmFile; and do not try to read
+	them from the default config file which is
+	This option is ignored if used inside the config file.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---alias-file</option> &ParmFile;</term>
+      <listitem>
+	<para>Use &ParmFile; as the alias file.  If it is not an
+	absolute filename, it is relative to the configuration directory.
+	Default is <filename>aliases</filename>.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---encrypt-file</option> &ParmFile;</term>
+      <listitem>
+	<para>Use &ParmFile; as the encrypt file.  If it is not an
+	absolute filename, it is relative to the configuration directory.
+	Default is <filename>encrypt</filename>.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---decrypt-file</option> &ParmFile;</term>
+      <listitem>
+	<para>Use &ParmFile; as the decrypt file.  If it is not an
+	absolute filename, it is relative to the configuration directory.
+	Default is <filename>encrypt</filename>.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---log-file</option> &ParmFile;</term>
+      <listitem>
+	<para>Use &ParmFile; as the log file. If you use a single dash,
+	log output is written to <systemitem>stderr</systemitem>
+	without timestamps.
+	Default is <filename>/var/log/geam/geamd</filename>.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---gpg-program</option> &ParmFile;</term>
+      <listitem>
+	<para>Use &ParmFile; as the <command>gpg</command> binary.
+	The default is installation dependent.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---gpg-homedir</option> &ParmDir;</term>
+      <listitem>
+	<para>Use &ParmDir; for the <command>gpg</command>
+	<option>---homedir</option> option.  If it is not an
+	absolute path, it is relative to the configuration
+	directory.  Default is <filename>gpg</filename>.</para>
+      </listitem>
+    </varlistentry>
+
+
+    <varlistentry>
+      <term><option>---port</option> &ParmN;</term>
+      <listitem>
+	<para>Listen on port &ParmN; instead of the default port 8025.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---user</option> &ParmName;</term>
+      <listitem>
+	<para>After setting up some basic things, change the user ID
+	of the process to &ParmName;.  This will only be done when the
+	process has been started under the effective user ID <literal>0</>.
+	If this option is not given, it is used implictly with
+	&ParmName; set to <literal>mail</literal>.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---group</option> &ParmName;</term>
+      <listitem>
+	<para>After setting up some basic things, change the group ID
+	of the process to &ParmName;.  This will only be done when the
+	process has been started under the effective user ID <literal>0</>.
+	If this option is not given, it is used implictly with
+	&ParmName; set to <literal>mail</literal>.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>---received-headers-max</option> &ParmN;</term>
+      <listitem>
+	<para>Set the the number of <structfield>Received:</structfield> mail headers
+	which are used to decide whether the mail is looping.
+	Default is 30.</para>
+      </listitem>
+    </varlistentry>
+
+  </variablelist>
+</refsect1>
+
+
+<refsect1 lang="en">
+    <title>FILES</title>
+    <variablelist>
+
+      <varlistentry>
+	<term><filename>/etc/geam/geamd.conf</filename></term>
+	<listitem>
+	  <para>The default configuration file.</para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><filename>/etc/geam/</filename></term>
+	<listitem>
+	  <para>The default configuration directory which is deducted from the
+	  configuration file and used as the base for all relative paths.</para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><filename>/etc/geam/gpg/</filename></term>
+	<listitem>
+	  <para>The default GnuPG home directory.</para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term><filename>/var/log/geam/geamd</filename></term>
+	<listitem>
+	  <para>The default log file.</para>
+	</listitem>
+      </varlistentry>
+
+    </variablelist>
+</refsect1>
+
+<refsect1 lang="en">
+    <title>SIGNALS</title>
+    <variablelist>
+
+      <varlistentry>
+	<term>SIGHUP</term>
+	<listitem>
+	  <para>Reread the configuration tables. Note that this does not
+	  include the configuration file which is only read on startup.</para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>SIGUSR1</term>
+	<listitem>
+	  <para>Increase the logging verbosity. Increasing this to level 3
+	  will also enable SMTP debugging.</para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>SIGUSR2</term>
+	<listitem>
+	  <para>Decrease the logging verbosity. Decreasing it from level 3
+	  will also disable SMTP debugging.</para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>SIGTERM</term>
+	<listitem>
+	  <para>The correct way to terminate this daemon.</para>
+	</listitem>
+      </varlistentry>
+
+
+    </variablelist>
+</refsect1>

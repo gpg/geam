@@ -1,0 +1,112 @@
+2000-07-26 15:50:57  Werner Koch  (wk@gnupg.org)
+
+	Version 0.8.1 released
+
+2000-04-12 13:11:00  Werner Koch  (wk@habibti.openit.de)
+
+	* acinclude.m4 (GPH_PROG_DOCBOOK): export DSL_FOR_TEX
+	* configure.in: Create a doc/localstyle.dsl
+	* doc/localstyle.dsl.in: New
+
+2000-03-02 17:23:39  Werner Koch  (wk@habibti.gnupg.de)
+
+	* doc/version.sgml.in: New.
+
+	* Released version 0.8.0.
+
+2000-03-02 15:09:27  Werner Koch  (wk@habibti.gnupg.de)
+
+	* src/nethelp.c: New.
+	* src/nethelp.h: New.
+	* src/options.h: New field inner_nets.
+	* src/smtproxy.c (is_sender_local): Implemented.
+	(smtpproxy_handler): Add new arg peer_addr.
+	* src/geamd.c: Pass the sockaddr down to the handler.
+	(main): New option --inner-net.
+	* doc/geamd-options.c: Add new option.
+
+2000-02-24 14:18:22  Werner Koch  (wk@bilbo.gnupg.de)
+
+	* doc/geamd.sgml: Moved parts to ...
+	* doc/geamd-options.sgml: ... this new file.
+
+2000-02-10 16:35:05  Werner Koch  (wk@gnupg.org)
+
+	* src/smtpproxy.c (read_encrypt_table): Allow to give keyIDs instead
+	of fingerprints.
+
+2000-02-09 14:59:53  Werner Koch  (wk@gnupg.org)
+
+	* Makefile.am: Add new subdirectory doc.
+	* src/Makefile.am: Removed the documentaion parts.
+	* doc/Makefile.am: New and readded the documenation parts
+	* doc/manual.de.sgml: New.
+	* src/geamd.sgml: Moved to ...
+	* doc/geamd.sgml: .. here.
+
+2000-01-26 09:23:06  Werner Koch  (wk@bilbo.gnupg.de)
+
+	* src/smtpprox.c (encryption_callback): Do a pth_join().
+	(check_decryption_callback): Ditto.
+	(decryption_callback): Ditto.
+
+2000-01-19 17:08:16  Werner Koch  (wk@gnupg.org)
+
+	* src/rfc822.c (rfc822_add_headerf): New.
+	* src/smtpproxy.c (open_smarthost): Add some comment lines to
+	the message. Add one argument to the function and adapted all callers.
+
+	* src9rfc822.c (rfc822_timestamp: New.
+	* src/rfc821.c (mk_timestamp): Removed and replaced all calls by
+	rfc822_timestamp.
+	* src/smtpprox.c (decrypt_eater): Add a comment with the timestamp.
+
+	* Released version 0.5.3
+
+2000-01-19 13:36:56  Werner Koch  (wk@gnupg.org)
+
+	* Released version 0.5.2
+
+2000-01-19 10:37:53  Werner Koch  (wk@bilbo.gnupg.de)
+
+	* src/geamd.c (change_userid): New.
+	(main): Add new options --user and --goup and use them.
+
+	* src/geamd.c (become_daemon): Don't catch SIGCHLD here, this
+	leads to problems with waitpid due to different semantics.
+
+	* tests: Add the test directory and a basic test
+
+2000-01-12 09:21:59  Werner Koch  (wk@bilbo.gnupg.de)
+
+	* src/rfc821.c (rfc821_parse_cmd): Made static.
+
+	* src/rfc821.c (rfc821_set_flag): New and used the flags at
+	some places to enable debugging output.
+	* src/geamd.c (main): Set the rfc821 flag when requested.
+	(handlesignals): set/clear the rfc821 smtp debug flag when
+	verbosity is changed to/from level 3.
+	* src/geamd.sgml: Documented these changes.
+
+	* src/smtpproxy.c (dummy_eater): New.
+	(check_decryption_callback): Pass output to the dummy eater and
+	don't use signalling to kill gpg as this badly interferes with some
+	problems in early glibc2.
+
+	* Released version 0.5.1
+
+2000-01-11 14:10:38  Werner Koch  (wk@bilbo.gnupg.de)
+
+	* acinclude.m4 (AM_PATH_PTH): Add --ldflags.
+
+	* src/smtpproxy.c (open_smarthost): Use orignal recipients
+	and not the ones from the alises table for encryption.
+
+2000-01-06 15:54:04  Werner Koch  (wk@gnupg.org)
+
+	* Released version 0.5.0
+
+1999-12-28 13:12:00  Werner Koch  (wk@gnupg.org)
+
+	* Released version 0.1.0
+

@@ -1,0 +1,534 @@
+<!-- manual.de.sgml - The German GEAM manual
+       Copyright (C) 2000 Werner Koch, Duesseldorf
+
+  This file is part of GEAM.
+
+  GEAM is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  GEAM is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+-->
+
+<!doctype book PUBLIC "-//OASIS//DTD DocBook V3.1//EN" [
+<!entity % tex	"IGNORE">
+<!--entity genindex system "manual.de.toc-idx"-->
+<!entity geamdversion system "version.sgml">
+<!entity geamdoptions system "geamd-options.sgml">
+<!entity geamdgloss system "gloss.de.sgml">
+<!entity geam  "<productname>GEAM</productname>">
+<!entity geamd	"<command>geamd</command>">
+<!entity gnupg "<productname>GnuPG</productname>">
+<!entity ParmDir "<parameter>directory</parameter>">
+<!entity ParmFile "<parameter>file</parameter>">
+<!entity OptParmFile "<optional>&ParmFile;</optional>">
+<!entity ParmFiles "<parameter>files</parameter>">
+<!entity OptParmFiles "<optional>&ParmFiles;</optional>">
+<!entity ParmNames "<parameter>names</parameter>">
+<!entity OptParmNames "<optional>&ParmNames;</optional>">
+<!entity ParmName  "<parameter>name</parameter>">
+<!entity OptParmName  "<optional>&ParmName;</optional>">
+<!entity ParmKeyIDs "<parameter>key IDs</parameter>">
+<!entity ParmN	    "<parameter>n</parameter>">
+<!entity ParmFlags  "<parameter>flags</parameter>">
+<!entity ParmString "<parameter>string</parameter>">
+<!entity ParmValue  "<parameter>value</parameter>">
+<!entity ParmNameValue	"<parameter>name=value</parameter>">
+<!entity MTA "<glossterm linkend=gl-mta><acronym>MTA</acronym></glossterm>">
+<!entity MUA "<glossterm linkend=gl-mua><acronym>MUA</acronym></glossterm>">
+<!entity SMTP "<glossterm linkend=gl-smtp><acronym>SMTP</acronym></glossterm>">
+<!entity Email "E-Mail" -- I'd prefer the English spelling "Email" even
+			   in German (wk) -- >
+
+]>
+
+<book lang="de">
+
+<bookinfo>
+  <title>Das &geam;-Handbuch</title>
+  <date>3. April 2000</date>
+
+<copyright>
+    <year>2000</year>
+    <holder>G-N-U GmbH, Essen</holder>
+</copyright>
+<copyright>
+    <year>2000</year>
+    <holder>OpenIT GmbH, Düsseldorf</holder>
+</copyright>
+
+<abstract>
+<para>Dieses Buch ist die Dokumentation zu GEAM, einer Software zur
+      automatischen Ver- und Entschlüsselung der gesamten &Email; eines LANs.
+      Diese Dokumentation bezieht sich auf die
+      Version &geamdversion; von &geam;.
+    </para>
+
+    <para>
+      Bitte richten Sie Fragen, Fehlerberichte oder Anregungen zu diesem
+      Handbuch per &Email; an <email>bug-geam@gnupg.de</email>.
+</para>
+  </abstract>
+
+  <legalnotice>
+<para>
+      Dieses Handbuch ist urheberrechtlich geschützt. Sie können es unter den
+      Bedingungen der <ulink url="http://www.gnu.org/copyleft/gpl.html">
+      <foreignphrase lang="en">GNU General Public
+      License</foreignphrase></ulink>, wie von der <foreignphrase
+      lang="en">Free Software Foundation</foreignphrase> herausgegeben,
+weitergeben und/oder modifizieren, entweder unter Version 2 der Lizenz
+oder (wenn Sie es wünschen) jeder späteren Version.
+</para>
+  </legalnotice>
+</bookinfo>
+
+
+<!--*****************************************
+ ************  Chapter 1  *******************
+ *****************************************-->
+<!-- Allgemeiner Überblick über die Funktionsweise und Einsatzgebiete
+     von GEAM. -->
+<chapter id="intro" xreflabel="1">
+<title>
+Übersicht
+</title>
+
+
+<para>
+&geam; ist eine Software, die es ermöglicht, die gesamte &Email; eines
+LANs automatisch zu ver- und entschlüsseln.
+Als Verschlüsselungsverfahren wird das OpenPGP-Protokoll benutzt; eine Erweiterung
+auf andere Verfahren ist jedoch auch möglich.
+</para>
+
+<para>
+Es ist möglich, &geam; in verschiedenen Konfigurationen zu betreiben;
+nachfolgend werden einige Beispiele gegeben.  Zu beachten ist, daß &geam;
+kein eigenständiger &MTA; ist und der Hilfe eines vollständigen
+&MTA; zum <foreignphrase lang="en">Routen</> bedarf.
+Es ist zur Zeit noch nicht möglich, &geam; ohne Verwendung des
+&SMTP;-Protokolls zu betreiben. Insbesondere gibt es noch keinen
+vollständigen Ersatz für <filename>/usr/lib/sendmail</filename>, welches unter
+Vermeidung von &SMTP; Nachrichten direkt an den &MTA;
+ausliefert, d.h. Sie können auf dem Rechner, auf dem &geam; installiert
+ist, einige Mail-Programme nicht benutzen.
+</para>
+
+<para>
+Kombinationen der einzelnen Konfigurationen sind auch möglich; insbesondere
+können durch geeignete Konfiguration Rechner eingespart werden.  Es ist
+möglich, mehrere &MTA;s sowie &geam; auf demselben Rechner
+zu betreiben.  Der Konfigurationsaufwand ist aber wesentlich höher und
+kann hier nicht beschrieben werden.
+</para>
+
+<sect1>
+<title>Ein Rechner, ein &MTA;</title>
+<para>
+Hier verwenden Sie einen Rechner und einen &MTA;.  Der &MTA; wird so
+konfiguriert, daß er nicht mehr auf Port 25, sondern einem beliebigen anderen
+Port auf Verbindungen wartet (im weiteren nehmen wir einmal 8025 an).
+</para>
+
+<para>
+&geam; nimmt in dieser Konfiguration jegliche Mail an und leitet sie direkt
+an den &MTA; weiter.  Hierzu sind dann
+<option>---inner-host-port</> und <option>---outer-host-port</> auf 8025
+zu setzen.
+</para>
+
+<!-- Platz lassen, damit die nächste Kapitelüberschrift auf der
+     nächsten Seite landet. <beginpage> tut's _nicht_. -->
+<para>&nbsp;</para>
+<para>&nbsp;</para>
+
+</sect1>
+
+<sect1>
+<title>Zwei Rechner, der &MTA; außen</title>
+<para>
+Hier verwenden Sie zwei Rechner und einen &MTA;.  Der &MTA; bedarf
+keiner besonderen Konfiguration und befindet sich auf Rechner A.  &geam;
+wird auf Rechner B installiert, der die SMTP-Verbindung nach außen durchführt.
+</para>
+
+<para>
+&geam; nimmt in dieser Konfiguration jegliche Mail von außen an und
+leitet sie an den &MTA; auf Rechner A weiter, wobei sie hier eventuell
+bereits enschlüsselt ist.  Für ausgehende Mail sendet der &MTA; auf
+Rechner A die Mail (die dann bereits die richtige Empfängeradresse hat)
+an &geam; auf Rechner B, welcher die Mail dann verschlüsselt und per
+SMTP direkt an den Empfänger weiterleitet.
+</para>
+
+<para>
+Diese Konfiguration hat den Nachteil, daß ein fehlgeschlagener
+Verbindungsversuch von &geam; an den Rechner A zurückgemeldet wird,
+der die Mail dann
+irgendwann einmal wieder sendet, wobei sie wieder neu verschlüsselt werden
+muß.  Desweiteren ist auf der Eingangsseite eine Filterung unerwünschter
+Mail nicht möglich.
+</para>
+</sect1>
+
+
+<sect1>
+<title>Zwei Rechner, der &MTA; innen</title>
+<para>
+Hier verwenden Sie zwei Rechner und einen &MTA;. &geam;
+befindet sich auf Rechner A und leitet alle Nachrichten an den &MTA;
+auf Rechner B weiter, der dann das <foreignphrase lang="en">Routing</>
+durchführt und die Nachrichten per &SMTP; versendet.
+</para>
+
+<para>
+&geam; nimmt in dieser Konfiguration jegliche Mail von innen an, führt die
+Verschlüsselung durch und leitet die verschlüsselten Nachrichten
+an den &MTA; weiter.  Eingehende Nachrichten von außen werden von
+dem &MTA; entgegengenommen und an &geam; weitergeleitet, der sie dann
+direkt im lokalen Netz zustellt.
+</para>
+
+<para>
+Der Vorteil dieser Konfiguration ist die höhere Sicherheit gegen
+Fehlkonfiguration; der Nachteil besteht darin, daß &geam; die Nachrichten
+in das interne Netz weiterleiten muß, dies aber oft nicht möglich ist, da auf den
+lokalen Rechnern im internen Netzwerk normalerweise kein &MTA;
+läuft, der die &SMTP;-Verbindung annimmt.
+</para>
+
+<!-- Platz lassen, damit die nächste Kapitelüberschrift auf der
+     nächsten Seite landet. <beginpage> tut's _nicht_. -->
+<para>&nbsp;</para>
+<para>&nbsp;</para>
+
+</sect1>
+
+<sect1>
+<title>Drei Rechner, &geam; in der Mitte</title>
+<para>
+Hier verwenden Sie drei Rechner und zwei &MTA;. Ein &MTA; ist
+für die Mail im lokalen Netz verantwortlich und
+<foreignphrase lang="en">routet</foreignphrase> alle anderen
+Nachrichten an &geam; auf einem anderen Rechner. &geam; wiederum
+führt die Verschlüsselung durch und leitet die Nachrichten an
+den &MTA;, der für die Außenverbindung zuständig ist, weiter.
+Eingehende Nachrichten werden entspechend behandelt.
+</para>
+
+<para>
+Dies ist eine sehr symmetrische Konfiguration und daher am
+einfachsten zu verstehen, konfigurieren und zu warten.	Ein weiterer Vorteil
+ist die gute Abschottung des internen Netzwerks, in dem nicht verschlüsselt
+wird, von dem Außennetzwerk, dessen Nachrichten immer über &geam;
+geleitet werden.
+</para>
+</sect1>
+
+
+</chapter>
+
+<!--*****************************************
+ ************  Chapter 2  *******************
+ *****************************************-->
+<!-- Detaillierte Installationsanleitung sowie Beschreibung
+     der Konfiguration -->
+<chapter id="install" xreflabel="1">
+<title>
+Installation
+</title>
+
+<para>
+Die Installation von &geam; bedarf einer Reihe Schritte und verlangt nach
+der Änderung der Systemkonfiguration. Hier wird im einzelnen beschrieben, wie
+die Installation abläuft.
+</para>
+
+<para>
+Da durch eine fehlerhafte Installation schwer erkennbare
+Sicherheitslücken entstehen können, sollte die Installation und
+Konfiguration von GEAM (wie von aller sicherheitsrelevanten Software)
+unbedingt durch kundiges Fachpersonal vorgenommen werden.
+</para>
+
+<sect1>
+<title>
+Übersetzen der Software
+</title>
+
+<para>
+Neben den üblichen Entwicklungswerkzeugen verlangt &geam; die Installation
+einiger weiterer Tools. Falls Sie diese Tools noch nicht installiert haben,
+wird der Installationsprozess dies später reklamieren.	Um zu testen, ob
+die notwendigen Tools alle vorhanden sind, sollten Sie am einfachsten direkt
+mit der Übersetzung von &geam; beginnen, um dann im Fehlerfall die anderen
+Tools zu installieren.
+</para>
+
+
+<sect2>
+<title>
+Installieren der <productname>Pth</>-Bibliothek
+</title>
+
+<para>
+<productname>Pth</> ist eine portable
+<foreignphrase lang="en">Userland-Treads</foreignphrase>-Implementierung.
+Sie finden sie auf jedem GNU-Spiegel. Benötigt wird die Version 1.2.1
+oder höher.
+</para>
+<para>
+Zur Installation gehen Sie folgendermaßen vor:
+
+<screen width="80">
+<prompt>hermes:~$</prompt> <userinput>zcat pth-1.2.1.tar.gz | tar xf - </userinput>
+<prompt>hermes:~$</prompt> <userinput>cd pth-1.2.1</userinput>
+<prompt>hermes:~/pth-1.2.1$</prompt> <userinput>./configure</userinput>
+</screen>
+Hier erfolgt jetzt eine etwas längere Überprüfung des Systems.
+<screen width="80">
+<prompt>hermes:~/pth-1.2.1$</prompt> <userinput>make</userinput>
+</screen>
+Die Bibliothek wird erzeugt.  Wenn dies fehlerfrei erfolgte, installieren Sie
+die Bibliothek:
+<screen width="80">
+<prompt>hermes:~/pth-1.2.1$</prompt> <userinput>su -c 'make -s install'</userinput>
+<!-- @@@ Wieso geht das nicht mit " oder &quot;??? -->
+</screen>
+Sie sollten jetzt dem dynamischen Linker Ihres Systems noch die Existenz
+dieser Bibliothek beibringen:
+<screen width="80">
+<prompt>hermes:~/pth-1.2.1$</prompt> <userinput>su -c ldconfig</userinput>
+</screen>
+Die Installation von <productname>Pth</productname> ist damit beendet.
+</para>
+</sect2>
+
+<sect2>
+<title>
+Installation des <productname>GNU Privacy Guards</>
+</title>
+
+<para>
+Sie benötigen eine Version von &gnupg; ab <literal>1.0.2</>.
+Das GnuPG-Handbuch beschreibt die Installation.  Lesen Sie bitte dort nach.
+</para>
+</sect2>
+
+<sect2><title>Installation der &geam;-Software</title>
+
+<para>
+Zur Installation gehen Sie folgendermaßen vor:
+
+<screen width="80">
+<prompt>hermes:~$</prompt> <userinput>zcat geam-1.0.0.tar.gz | tar xf - </userinput>
+<prompt>hermes:~$</prompt> <userinput>cd geam-1.0.0</userinput>
+<prompt>hermes:~/geam-1.0.0$</prompt> <userinput>./configure</userinput>
+</screen>
+Hier erfolgt jetzt eine etwas längere Überprüfung des Systems.
+<screen width="80">
+<prompt>hermes:~/geam-1.0.0$</prompt> <userinput>make</userinput>
+</screen>
+Die eigentliche Übersetzung wird durchgeführt. Danach sollten Sie unbedingt
+die Tests durchführen:
+<screen width="80">
+<prompt>hermes:~/geam-1.0.0$</prompt> <userinput>make check</userinput>
+</screen>
+Wenn die Tests erfolgreich verlaufen sind, können Sie
+mit der Installation fortfahren:
+<screen width="80">
+<prompt>hermes:~/pth-1.2.1$</prompt> <userinput>su -c 'make -s install'</userinput>
+<!-- @@@ Wieso geht das nicht mit " oder &quot;??? -->
+</screen>
+Die Installation von &geam; ist damit beendet.
+</para>
+<!-- Platz lassen, damit die nächste Kapitelüberschrift nicht ganz
+     unten auf der Seite landet -->
+<para>
+  &nbsp;
+</para>
+<para>
+  &nbsp;
+</para>
+
+</sect2>
+</sect1>
+
+<sect1><title>Konfigurieren von &geam;</title>
+
+<para>
+Nachdem die &geam;-Software nun auf Ihrem Rechner installiert ist, kommt die
+wichtige Aufgabe der Konfiguration an die Reihe.  Bitte machen Sie sich
+voher unbedingt mit dem Funktionsprinzip von &geam; vertraut.
+</para>
+
+<sect2><title>Die Konfigurationsdateien</title>
+<para>
+&geam; verwendet eine Reihe von Konfigurationsdateien, um alle Aspkete der
+Verschlüsselung zu kontrollieren.  Diese Dateien befinden sich
+im Verzeichnis <filename>/etc/geam</filename> oder dem Verzeichnis, welches
+implizit durch die Option <option>---config</option> bestimmt wurde.
+Die Namen dieser Dateien können durch Optionen geändert werden und müssen
+deswegen nicht unbedingt in dem Konfigurationsverzeichnis liegen.
+</para>
+
+<para>
+Die Dateien sind im einzelnen:
+</para>
+<variablelist>
+  <varlistentry><term><filename>geamd.conf</filename></term>
+  <listitem>
+  <para>Allgemeine Optionen und Einstellungen, wie sie auch auf
+  der Kommandozeile mitgegeben werden können.  Diese Datei wird
+  lediglich beim Programmstart eingelesen und kann die Namen
+  der anderen Konfigurationsdateien ändern.
+  </para></listitem></varlistentry>
+
+  <varlistentry><term><filename>encrypt</filename></term>
+  <listitem>
+  <para>Dies ist eine Liste mit den Informationen zu Schlüsseln, die
+  für einzelen Adressaten
+  zum Verschlüsseln verwendet werden sollen.
+  </para></listitem></varlistentry>
+
+  <varlistentry><term><filename>decrypt</filename></term>
+  <listitem>
+  <para>Dies ist eine Liste von Schlüsseln, die benutzt werden sollen, um
+  eingehende Nachrichten zu entschlüsseln
+  </para></listitem></varlistentry>
+
+  <varlistentry><term><filename>aliases</filename></term>
+  <listitem>
+  <para>Dies ist die allgemeine Kontrolldatei, die bestimmt, an welche Adressaten
+  verschlüsselt und für welche Empfänger entschlüsselt werden soll.
+  </para></listitem></varlistentry>
+
+</variablelist>
+
+<para>
+Neben diesen Dateien wird noch ein Verzeichnis
+<filename>/etc/geam/gpg</filename> als
+<foreignphrase lang="en">home directory</foreignphrase> für
+&gnupg; erwartet. Dort befinden sich die Schlüsselringe mit den
+öffentlichen und geheimen Schlüsseln.
+</para>
+
+<para>
+Nähere Informationen zu den einzelnen Dateien finden Sie auch in den Kommentaren
+der mitgelieferten Beispieldateien.
+</para>
+
+</sect2>
+
+</sect1>
+
+</chapter>
+
+
+<!--*****************************************
+ ************  Chapter: Operation  **********
+ *****************************************-->
+<chapter id="operation" xreflabel="1">
+<title>
+Der tägliche Betrieb von &geam;
+</title>
+
+<para>
+Im laufenden Betrieb mit bekannten Kommunikationspartnern ist für den
+Administrator wenig zu tun. Seine einzige Aufgabe besteht dann darin, die
+Log-Dateien gelegentlich zu kontrollieren. Dies kann aber auch durch
+automatische Werkzeuge (z.B. <productname>AWACS</productname>) geschehen.
+</para>
+<para>
+Wenn allerdings &Email; an Empfänger gesendet werden soll, die noch nicht
+konfiguriert sind, sind die Konfigurationsdateien zu erweitern sowie der
+Schlüssel des neuen Empfängers in den Schlüsselring aufzunehmen.
+</para>
+<para>
+Sollte der Verdacht bestehen, daß Außenstehende Zugriff auf den Rechner mit
+der installierten &geam;-Software hatten, so ist zu überprüfen, ob die
+geheimen Schlüssel kompromittiert wurden.  In diesem Fall sollten diese
+Schlüssel sofort ausgetauscht werden, um größeren Schaden zu vermeiden.
+</para>
+</chapter>
+
+
+<!--*****************************************
+ ************  Chapter: Security  **********
+ *****************************************-->
+<chapter id="security" xreflabel="1">
+<title>
+Sicherheitsratschläge
+</title>
+
+<para>
+&geam; ist lediglich als Hilfsmittel gedacht, um den &Email;-Verkehr zwischen
+zwei lokalen Netzwerken zu verschlüsseln.  Damit ist es nicht mehr möglich,
+außerhalb dieser LANs &Email; mitzulesen.  Die Sicherheit eines LANs hängt
+allerdings von vielen weiteren Punkten ab, und eine externe &Email;-Verschlüsselung
+ist nur ein erster Schritt zu einem sicheren Netz.
+</para>
+<para>
+Grundsätzlich ist eine Verschlüsselung, die auf der gesamten Strecke zwischen
+Absender und Empfänger besteht, der <quote>Notlösung</> &geam; vorzuziehen.
+Der wesentliche Vorteil von &geam; ist seine Transparenz und die einfache
+Installation, da &geam; lediglich auf einem Rechner zu installieren ist.
+</para>
+<para>
+Weiterhin bestehen Gefahren bei fehlerhafter Konfiguration der
+<abbrev>MTA</>-Software, des LANs oder &geam; selbst.  Beispielsweise kann
+ein fehlerhaft konfigurierter <abbrev>MTA</> dazu führen, daß Nachrichen, die
+bereits durch &geam; entschlüsselt wurden, wieder aus dem LAN hinausgelangen.
+Ein Angreifer könnte sich dies zunutze machen, um abgefangene Nachrichten
+entschlüsseln zu lassen. Wenn allerdings derartige Schwachstellen vorhanden
+sind, kann davon ausgegangen werden, daß weitere externe Angriffspunkte im
+Netz existieren.
+</para>
+<para>
+Sie sollten auf jeden Fall fachkundigen Rat einholen und eventuell die
+Konfiguration und Sicherheitsüberprüfung durch eine Fachfirma vornehmen lassen.
+</para>
+</chapter>
+
+<!--*****************************************
+ ************  Appendix  ********************
+ *****************************************-->
+<appendix>
+  <title>Referenz</title>
+
+<para>
+Diese Referenzseiten sind identisch mit den entsprechenden
+  Abschnitten der Unix-<systemitem>man page</> und deswegen auch
+  nur auf englisch vorhanden.
+</para>
+
+<refentry>
+  <refnamediv>
+    <refname>geamd</refname>
+      <refpurpose>An SMTP encryption daemon</>
+  </refnamediv>
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>geamd</command>
+      <arg><replaceable>options</replaceable></arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+&geamdoptions;
+
+</refentry>
+
+</appendix>
+
+&geamdgloss;
+
+</book>

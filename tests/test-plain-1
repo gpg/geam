@@ -1,0 +1,27 @@
+Date: Mon, 13 Dec 1999 12:29:57 +0100
+From: Richard <dick@tricky.gov>
+To: William <bill@cigars.gov>
+Subject: test mime
+Message-ID: <19991213122957.X31784@hal9000.fbi.gov>
+Mime-Version: 1.0
+Content-Type: multipart/encrypted; protocol="application/foobar";
+	boundary="yEPQxsgoJgBvi8ip"
+Content-Foo: plain nonsense
+Sender: Hoover <chief@fbi.gov>
+
+
+--yEPQxsgoJgBvi8ip
+Content-Type: application/foobar
+
+Tape=1
+Track=17
+Erased=sure
+
+--yEPQxsgoJgBvi8ip
+Content-Type: text/plain; charset=us-ascii
+
+"May I recommend some friends of mine with a lot of experience in
+in solving problems?"
+
+--yEPQxsgoJgBvi8ip--
+

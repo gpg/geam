@@ -1,0 +1,32 @@
+# common definitions for all test scripts
+
+# reset some environment variables becuase we do not want to test locals
+export LANG=C
+export LANGUAGE=C
+export LC_ALL=C
+
+if [ "$VERBOSE" = yes ]; then
+    set -x
+fi
+
+fail=0
+framework_failure=0
+
+if [ -n "$GPG_PROGRAM" ]; then
+    GPG="$GPG_PROGRAM"
+else
+    GPG=`which gpg`
+    if [ ! -x $GPG ]; then
+	echo 'Sorry, gpg has not been found in the search path.'
+	echo 'To run these checks anyway, please set GPG_PROGRAM'
+	echo 'to the full path of gpg'
+	exit 1
+    fi
+fi
+
+if ! $GPG --version >/dev/null; then
+    echo 'Sorry, there is a problem running GnuPG.'
+    echo "Please check why $GPG does not run."
+    exit 1
+fi
+

@@ -1,0 +1,19 @@
+# Geam - list of secret keys which should be used to decrypt messages.
+#
+# We need this list to relay a decrypted message to a fixed address.
+# This way we have better control over the recipient of a _decrypted_
+# message.
+#
+# Format is:  mail address, encryption system, keyid.
+#
+# The mail address here may be used to decrypt message which do not
+# have an allowed decrypt recipients (as determined by the aliases table).
+# You may want to use the owner of the correspinding key or the postmaster
+# for this address.
+#
+# In contrast to the "encrypt" table, we use here only the keyid as this
+# is the information stored in the OpenPGP message header.
+
+postmaster@localhost   gpg  5381EA4EE29BA37F
+yankee@localhost       gpg  5ADFD255F7B080AD
+

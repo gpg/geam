@@ -1,0 +1,114 @@
+<!-- geamd.sgml - the man page for geamd
+       Copyright (C) 2000 Werner Koch, Duesseldorf
+
+  This file is part of GEAM.
+
+  GEAM is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  GEAM is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+-->
+
+<!doctype refentry PUBLIC "-//OASIS//DTD DocBook V3.1//EN" [
+<!entity geamdversion system "version.sgml">
+<!entity geamdoptions system "geamd-options.sgml">
+<!entity geamd	"<productname>geamd</productname>">
+<!entity ParmDir "<parameter>directory</parameter>">
+<!entity ParmFile "<parameter>file</parameter>">
+<!entity OptParmFile "<optional>&ParmFile;</optional>">
+<!entity ParmFiles "<parameter>files</parameter>">
+<!entity OptParmFiles "<optional>&ParmFiles;</optional>">
+<!entity ParmNames "<parameter>names</parameter>">
+<!entity OptParmNames "<optional>&ParmNames;</optional>">
+<!entity ParmName  "<parameter>name</parameter>">
+<!entity OptParmName  "<optional>&ParmName;</optional>">
+<!entity ParmKeyIDs "<parameter>key IDs</parameter>">
+<!entity ParmN	    "<parameter>n</parameter>">
+<!entity ParmFlags  "<parameter>flags</parameter>">
+<!entity ParmString "<parameter>string</parameter>">
+<!entity ParmValue  "<parameter>value</parameter>">
+<!entity ParmNameValue	"<parameter>name=value</parameter>">
+]>
+
+<refentry>
+  <docinfo>
+    <address>
+      <email>wk@gnupg.org</email>
+    </address>
+    <author>
+      <firstname>Werner</firstname>
+      <surname>Koch</surname>
+    </author>
+  <date>1999-12-28</date>
+  </docinfo>
+  <refmeta>
+    <refentrytitle>geamd</refentrytitle>
+    <manvolnum>8</manvolnum>
+    <refmiscinfo class="gnu">GNU Tools</refmiscinfo>
+  </refmeta>
+  <refnamediv>
+    <refname>geamd</refname>
+    <refpurpose>A SMTP encryption daemon</>
+  </refnamediv>
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>geamd</command>
+      <arg><replaceable>options</replaceable></arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1>
+    <title>DESCRIPTION</title>
+
+    <para>The &geamd; is a <abbrev>SMTP</abbrev> proxy which is able to encrypt
+      or decrypt mail on the fly. It is not a full MTA as it depends
+      on smarthosts for routing.</para>
+
+  </refsect1>
+
+
+&geamdoptions;
+
+  <refsect1>
+    <title>SEE ALSO</title>
+
+    <para>gpg(1)</para>
+
+  </refsect1>
+
+  <refsect1>
+    <title>WARNINGS</title>
+    <para>This software is intended to encrypt all mail at a site.  It
+    is highly recommended to install and use it only after learning how
+    to configure it and to know what it can do and what it cannot do.</para>
+
+    <para>This software is only as secure as the machine it is running on
+    is. Never install valuable secure keys on that machine.  It seems to be
+    a good way to use only an encryption subkey with a limited lifetime and
+    make the primary key unusable; this way a stolen key can easily be replaced
+    without loosing the certificates. Newer version of GnuPG support this;
+    see the GnuPG FAQ on how to do it</para>
+  </refsect1>
+
+
+  <refsect1>
+    <title>BUGS</title>
+    <para>Yes.</para>
+    <para>Please report them to <email>bug-geam@gnupg.de</email> and
+    do not forget to include the version of the program and all
+    the information to reproduce the problem.  Do dot send secret keys!
+    A bug report may be forwarded to a public mailing list.</para>
+  </refsect1>
+
+
+</refentry>
+

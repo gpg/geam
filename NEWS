@@ -1,0 +1,20 @@
+Noteworthy changes in version 0.8.0
+-----------------------------------
+
+* Add a manual in HTML and PS.
+* Add option --inner-net
+
+
+Noteworthy changes in version 0.5.3
+-----------------------------------
+
+* Fixed a race condition.
+
+
+Noteworthy changes in version 0.5.3
+-----------------------------------
+
+* Add a few other checks to the make check target.
+
+* Add a few X-Geam-Comment: header
+

@@ -1,0 +1,211 @@
+#!/bin/sh
+
+. $srcdir/common || exit 2
+
+cat >geamd.conf <<EOF
+port 8025
+inner-host-name localhost
+inner-host-port 9025
+outer-host-name localhost
+outer-host-port 9026
+gpg-program $GPG
+gpg-homedir .
+debug 255
+verbose
+verbose
+
+log-file ./geamd.log
+EOF
+
+: >geamd.log
+
+cat >encrypt <<EOF
+yankee		gpg  016C7F5C72E26B8DE642D49A5ADFD255F7B080AD
+zulu		gpg  2DCA5A1392DE06ED4FCB8C53EF9DC276A172C881
+EOF
+
+cat >decrypt <<EOF
+yankee@localhost      gpg  5ADFD255F7B080AD
+zulu@localhost	      gpg  EF9DC276A172C881
+EOF
+
+cat >aliases <<EOF
+joe@nsa.gov :  yankee
+nsa.gov :
+
+bill@whitehouse.tmp : yankee
+
+announce-list@foo.bar :
+foo.bar :      zulu
+
+foo.bar: DECRYPT
+EOF
+
+$GPG --dearmor <$srcdir/pubring.asc >pubring.gpg 2>/dev/null
+$GPG --dearmor <$srcdir/secring.asc >secring.gpg 2>/dev/null
+
+echo 'starting daemon'
+if ! ../src/geamd -C `pwd`/geamd.conf ; then
+    echo 'failed to start the daemon process'
+    exit 1
+fi
+echo -n 'waiting for daemon to get ready '
+i=5
+while geamd_pid=`sed -n 's/^.*(pid=\([0-9]*\).*$/\1/p' geamd.log`; \
+      test -z "$geamd_pid" ; do
+    if ! ((i=$i-1)); then
+	echo ' - failed'
+	exit 1
+    fi
+    echo -n '.'
+    sleep 1
+done
+echo
+
+geamd_pid=""
+inner_pid=""
+outer_pid=""
+
+do_exit () {
+    echo 'stopping daemons'
+    [ -n "$geamd_pid" ] && kill $geamd_pid
+    [ -n "$inner_pid" ] && kill $inner_pid
+    [ -n "$outer_pid" ] && kill $outer_pid
+    exit $fail
+}
+
+do_fail () {
+    fail=1
+    do_exit
+}
+
+trap do_fail HUP INT QUIT PIPE TERM
+
+
+#------------------------------------------
+# Test:
+#------------------------------------------
+echo 'checking simple proxing ...'
+# starting outer MTA
+../src/simple-mta -lp 9026 >outer-host.out 2>outer-host.log &
+outer_pid="$!"
+sleep 1
+../src/simple-mta -p 8025 -f foo -t joe@i-cant-internet.com localhost $srcdir/test-plain-1
+wait $outer_pid 2>/dev/null
+if [ ! -s outer-host.out ]; then
+    echo 'Error: no message sent'
+    fail=1
+    do_exit
+fi
+outer_pid=""
+
+# Compare but skip the Received header.  We know that they come before Date.
+# because a regex as secnd address wil not be tested when the first address
+# matches, we have do the strange hack.
+echo | cat - $srcdir/test-plain-1 | sed '1,/^Date:/d' >x1
+sed '1,/^Date:/d' outer-host.out >x2
+if ! diff -q x1 x2 >/dev/null ; then
+    echo 'ERROR: mismatch:'
+    diff x1 x2
+    fail=1
+fi
+
+
+#------------------------------------------
+# Test:
+#------------------------------------------
+echo 'checking encryption ...'
+# starting outer MTA
+../src/simple-mta -lp 9026 >outer-host.out 2>outer-host.log &
+outer_pid="$!"
+sleep 1
+../src/simple-mta -p 8025 -f foo -t bill@whitehouse.tmp localhost $srcdir/test-plain-1
+wait $outer_pid 2>/dev/null
+if [ ! -s outer-host.out ]; then
+    echo 'ERROR: no message sent'
+    fail=1
+    do_exit
+fi
+outer_pid=""
+
+# fixme: check theat the message looks okay.  Instead of doing this,
+# we simply decrypt the message.
+cat outer-host.out >x
+
+echo '... and decryption'
+../src/simple-mta -lp 9025 >inner-host.out 2>inner-host.log &
+inner_pid="$!"
+sleep 1
+../src/simple-mta -p 8025 -f someone -t joe@foo.bar localhost x
+wait $inner_pid 2>/dev/null
+if [ ! -s inner-host.out ]; then
+    echo 'ERROR: no message received'
+    fail=1
+    do_exit
+fi
+inner_pid=""
+
+# now compare the body parts
+sed '1,/^$/d' $srcdir/test-plain-1 >x1
+sed '1,/^$/d' inner-host.out >x2
+if ! diff -q x1 x2 >/dev/null ; then
+    echo 'ERROR: body mismatch:'
+    diff x1 x2
+    fail=1
+fi
+
+#------------------------------------------
+# Test:
+#------------------------------------------
+echo 'checking that we do not decrypt for unknown recipients ...'
+
+../src/simple-mta -lp 9025 >inner-host.out 2>inner-host.log &
+inner_pid="$!"
+sleep 1
+../src/simple-mta -p 8025 -f someone -t joe@i-cant-internet.com localhost x
+wait $inner_pid 2>/dev/null
+if [ ! -s inner-host.out ]; then
+    echo 'ERROR: no message received'
+    fail=1
+    do_exit
+fi
+inner_pid=""
+
+if ! grep -qs '^X-Geam-Comment: using <.*> as fallback' inner-host.out; then
+    echo 'ERROR: fallback recipient has not been used'
+    fail=1
+fi
+
+sed '1,/^$/d' $srcdir/test-plain-1 >x1
+sed '1,/^$/d' inner-host.out >x2
+if ! diff -q x1 x2 >/dev/null ; then
+    echo 'ERROR: body mismatch:'
+    diff x1 x2
+    fail=1
+fi
+
+
+#------------------------------------------
+# Test:
+#------------------------------------------
+echo 'checking encryption with multiple recipients ...'
+# starting outer MTA
+../src/simple-mta -lp 9026 >outer-host.out 2>outer-host.log &
+outer_pid="$!"
+sleep 1
+../src/simple-mta -p 8025 -f foo -t bill@whitehouse.tmp \
+				 -t joe@i-cant-internet.com localhost $srcdir/test-plain-1
+wait $outer_pid 2>/dev/null
+if [ ! -s outer-host.out ]; then
+    echo 'ERROR: no message sent'
+    fail=1
+    do_exit
+fi
+outer_pid=""
+
+
+# Add more tests here.	We should write a tool ala formail to
+# tweak the headers for compares.
+
+do_exit
+

@@ -1,0 +1,41 @@
+# aliases for geam
+# This file is a mapping of mail addresses to the mail-adressses as used
+# in other tables of geam.  Only n-to-1 mapping is supported. The first
+# entry is used, an asterisk may be used as a wildcard at the beginning of
+# a mail address, an address without the at-sign aliases the entire domain.
+# wildcards are not yet implemented
+#
+# Note:  When we talk about addresses here we mean the envelope addresses
+#	 and not those found in the rc822 headers.
+#
+# Special names on the right side:
+#    DECRYPT  - Allow decryption for these recipients
+#
+# Encrypt all mail to g-n-u.de using the key "@g-n-u.de".  This means that
+# everything for the domain with all mailboxes and all subdomains will be
+# encrupted.
+
+g-n-u.de : g-n-u.de
+
+
+# Encrypt everything for joe's address at the NSA using his undercover key.
+# this is neededed because of the next rule
+joe@nsa.gov :  joe.undercover
+
+# Why bother to encrypt something for the NSA at all.
+nsa.gov :
+
+# Do not encrypt the list addresses, but everthing else
+announce-list@foo.bar :
+announce-list-request@foo.bar :
+foo.bar :  foo.bar
+
+gnupg.de: wk@gnupg.de
+
+gerwinski.de: peter@gerwinski.de
+
+wk@gnupg.de: DECRYPT
+beren.gnupg.de: DECRYPT
+
+foo.net: DECRYPT
+

@@ -1,0 +1,64 @@
+<!-- gloss.de.sgml - A glossay for Geam (German)
+       Copyright (C) 2000 Werner Koch, Duesseldorf
+
+  This file is part of GEAM.
+
+  GEAM is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  GEAM is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+-->
+
+
+<glossary>
+  <glossentry sortas="MTA">
+    <glossterm id="gl-mta" lang="en">Message Transfer Agent
+    (<acronym>MTA</acronym>)</glossterm>
+    <glossdef>
+      <para>
+      Software, die sich um das Versenden und Empfangen von
+      &Email; kümmert. Bekannte Programme dieser Art sind:
+	<productname>Sendmail</>,
+	<productname>Exim</>,
+	<productname>Postfix</>.
+      </para>
+      <glossseealso otherterm="gl-mua">
+    </glossdef>
+  </glossentry>
+
+  <glossentry sortas="MUA">
+    <glossterm id="gl-mua" lang="en">Message User Agent
+    (<acronym>MUA</acronym>)</glossterm>
+    <glossdef>
+      <para>
+      Software, die zum Lesen und Schreiben von &Email; benutzt
+      wird. Bekannte Programme dieser Art sind:
+	<productname>Mutt</>,
+	<productname>Pine</>,
+	<productname>GNUS</>.
+      </para>
+      <glossseealso otherterm="gl-mta">
+    </glossdef>
+  </glossentry>
+
+  <glossentry sortas="SMTP">
+    <glossterm id="gl-smtp" lang="en">Simple Mail Transfer Protocol
+    (<acronym>SMTP</acronym>)</glossterm>
+    <glossdef>
+      <para>
+      Protokoll, das im Internet zum Transport von &Email;
+      benutzt wird. Definiert ist es im <literal>RFC821</>.
+      </para>
+    </glossdef>
+  </glossentry>
+
+</glossary>
