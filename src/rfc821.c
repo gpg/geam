@@ -1,5 +1,6 @@
 /* rfc821.c
  *	Copyright (C) 1999, 2000 Werner Koch, Duesseldorf
+ *      Copyright (C) 2004 g10 Code GmbH
  *
  * This file is part of GEAM.
  *
@@ -492,14 +493,17 @@ rfc821_proc_data( RFC821 state, int fd, char *line )
 	}
     }
 
-    if( do_callback( state, RFC821EVT_DATA_END ) ) {
+    rc = do_callback( state, RFC821EVT_DATA_END );
+    if (rc) {
 	rfc822_cancel( msg );
-	return rfc821_reply( fd, 554, NULL ); /* Transaction failed */
+        /* Either return a temporary processing error or Transaction failed. */
+	return rfc821_reply( fd, rc == 2? 451:554, NULL );
     }
 
-    if( rfc822_finish( msg ) ) {
+    rc = rfc822_finish( msg );
+    if (rc) {
 	rfc822_cancel( msg );
-	return rfc821_reply( fd, 554, NULL ); /* Transaction failed */
+	return rfc821_reply( fd, rc == 2? 451:554, NULL );
     }
 
     rfc822_close( msg );
@@ -755,7 +759,7 @@ get_response( RFC821 state )
 	    return 1001;  /* not defined */
 
     } while( length > 3 && line[3]=='-' );
-    if( code >=400 && code < 600 )
+    if( code >=400 && code < 600)
 	log_info("fd %d: response: `%s'\n", state->fd, line );
 
     return code;
@@ -787,7 +791,8 @@ rfc821_start_session( RFC821 state, int fd )
 		log_error("fd %d: smarthost closed channel\n", fd );
 	    else
 		log_error("fd %d: smarthost failed (%d)\n", fd, reply );
-	    return RFC821ERR_NOSERVICE;
+            return (reply >= 400 && reply < 500)?
+                       RFC821ERR_TEMP:RFC821ERR_NOSERVICE;
 	}
     }
 
@@ -797,7 +802,7 @@ rfc821_start_session( RFC821 state, int fd )
     reply = get_response( state );
     if( reply != 250 ) {
 	log_error("fd %d: SMTP HELO failed (%d)\n", fd, reply );
-	return RFC821ERR_GENERAL;
+	return (reply >= 400 && reply < 500)? RFC821ERR_TEMP:RFC821ERR_GENERAL;
     }
 
     state->helo_seen_done = 1;
@@ -843,7 +848,7 @@ rfc821_send_sender( RFC821 state, const char *path )
     reply = get_response( state );
     if( reply != 250 ) {
 	log_error("fd %d: SMTP MAIL failed (%d)\n", state->fd, reply );
-	return RFC821ERR_GENERAL;
+	return (reply >= 400 && reply < 500)? RFC821ERR_TEMP:RFC821ERR_GENERAL;
     }
 
     return 0;
@@ -884,7 +889,7 @@ rfc821_send_recipient( RFC821 state, const char *path )
     reply = get_response( state );
     if( reply != 250 ) {
 	log_error("fd %d: SMTP RCPT failed (%d)\n", state->fd, reply );
-	return RFC821ERR_GENERAL;
+	return (reply >= 400 && reply < 500)? RFC821ERR_TEMP:RFC821ERR_GENERAL;
     }
 
     return 0;
@@ -935,8 +940,9 @@ rfc821_send_body_line( RFC821 state, const char *line, size_t length )
 	state->in_data = 0;
 	reply = get_response( state );
 	if( reply != 250 ) {
-	    log_error("fd %d: SMTP DATA failed (%d)\n", state->fd, reply );
-	    return RFC821ERR_GENERAL;
+	    log_error("fd %d: SMTP DATA (body) failed (%d)\n", state->fd, reply );
+            return (reply >= 400 && reply < 500)?
+                      RFC821ERR_TEMP:RFC821ERR_GENERAL;
 	}
     }
 
@@ -998,8 +1004,8 @@ rfc821_copy_header_lines( RFC821 smtp, RFC822 msg )
 
     reply = get_response( smtp );
     if( reply != 354 ) {
-	log_error("fd %d: SMTP DATA failed (%d)\n", smtp->fd, reply );
-	return RFC821ERR_GENERAL;
+	log_error("fd %d: SMTP DATA failed (header) (%d)\n", smtp->fd, reply );
+	return (reply >= 400 && reply < 500)? RFC821ERR_TEMP:RFC821ERR_GENERAL;
     }
     smtp->in_data = 1;
 

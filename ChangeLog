@@ -1,3 +1,21 @@
+2004-03-31  Werner Koch  <wk@gnupg.org>
+
+	Released 0.8.3
+
+	* src/simple-mta.c: New option --loaded.
+	* tests/basic: Add 2 tests to check temporary failures.
+	* src/smtpproxy.c (cb_from_rfc822): Set the new state variable
+	FAIL_DATA_TEMP.
+	(cb_from_rfc821): Return a different error if we have a temporary
+	failure.
+	(open_smarthost, copy_data): New arg TEMP_FAILURE.
+	* src/rfc821.c (rfc821_proc_data): Return 451 depending on what
+	the callback wants.
+	(rfc821_start_session): Distinguish between temporary and
+	permanent errors.
+	(rfc821_send_sender, rfc821_send_recipient) 
+	(rfc821_copy_header_lines): Ditto.
+
 2003-08-12  Werner Koch  <wk@gnupg.org>
 
 	* src/rfc821.c (rfc821_send_body_line): Don't write the DATA END

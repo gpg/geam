@@ -1,6 +1,6 @@
 /* geamd.c  -  The GEAM daemon
  *	Copyright (C) 1999, 2000 Werner Koch, Duesseldorf
- *      Copyright (C) 2001 g10 Code GmbH
+ *      Copyright (C) 2001, 2004 g10 Code GmbH
  *
  * This file is part of GEAM.
  *
@@ -119,7 +119,7 @@ my_strusage( int level )
       case 11: p = "geamd";
 	break;
       case 13: p = VERSION; break;
-      case 14: p = "Copyright (C) 2001 g10 Code GmbH"; break;
+      case 14: p = "Copyright (C) 2004 g10 Code GmbH"; break;
       case 19: p = _("Please report bugs to <geam@g10code.com>.\n");
 	break;
       case 1:

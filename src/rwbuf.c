@@ -240,7 +240,7 @@ rw_readline( int fd, size_t maxlen, size_t *nbytes, int *truncated )
 	}
 	if( evt )
 	    pth_event_free(evt, PTH_FREE_THIS);
-	if( !nread  ) {
+        if( !nread  ) {
 	    rw->eof = 1;
 	    if( !buf->wpos ) {
 		return NULL;

@@ -5,6 +5,8 @@ TESTS = basic
 EXTRA_DIST = $(TESTS) common pubring.asc secring.asc \
 	     test-plain-1
 
+DISTCLEANFILES = random_seed
+
 CLEANFILES = geamd.log geamd.conf encrypt decrypt aliases \
 	     pubring.gpg secring.gpg trustdb.gpg \
 	     inner-host.out inner-host.log \

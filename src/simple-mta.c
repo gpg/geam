@@ -59,6 +59,7 @@ enum opt_values { aNull = 0,
     oVerbose	  = 'v',
     oQuiet	  = 'q',
     oDebug	  = 500,
+    oLoaded,
 
 };
 
@@ -72,6 +73,7 @@ static ARGPARSE_OPTS opts[] = {
     { oVerbose, "verbose",   0, "verbose" },
     { oQuiet,	"quiet",     0, "be more quiet"},
     { oDebug,	"debug",     4|16, "set debugging flags"},
+    { oLoaded,  "loaded",    0, "always temporary error"},
 {0} };
 
 
@@ -89,6 +91,7 @@ typedef struct server_data {
 
 static int verbose = 0;
 static int debug = 0;
+static int loaded = 0;
 
 static int start_listening( int port );
 static int server_cb_rfc821( void *opaque, enum rfc821_events event, RFC821 smtp );
@@ -196,6 +199,7 @@ main( int argc, char **argv )
 	  case oVerbose: verbose++; break;
 	  case oQuiet:	break;
 	  case oDebug: debug |= pargs.r.ret_ulong; break;
+          case oLoaded: loaded++; break;
 	  default: pargs.err = 2; break;
 	}
     }
@@ -249,11 +253,20 @@ main( int argc, char **argv )
 	    if( verbose )
 		log_info( "connect from %s:%d\n",
 			  inet_ntoa(paddr.sin_addr), (int)ntohs(paddr.sin_port) );
-
 	    if( rw_init( state.fd ) ) {
 		log_error("fd %d: rw_init failed\n", state.fd );
 		continue;
 	    }
+
+            if (loaded > 1)
+              {
+		log_info("fd %d: closing connection due to --loaded\n",
+                         state.fd );
+                rw_writestr (state.fd, "421 Try again later\r\n");
+                close (state.fd);
+                state.fd = -1;
+                continue;
+              }
 
 	    smtp = rfc821_open( server_cb_rfc821, &state );
 	    if( !smtp ) {
@@ -499,6 +512,10 @@ server_cb_rfc822( void *opaque, enum rfc822_events event, RFC822 msg )
 {
     SERVER state = opaque;
     int rc = 0;
+
+    if (loaded)
+      return 2; /* This should force the 821 layer to send a temporary
+                   error code. */
 
     /*log_debug("fd %d: server_cb_rfc822: event %d\n", state->fd, event );*/
     if( event == RFC822EVT_FINISH && state->stream ) {

@@ -36,6 +36,7 @@ enum rfc821_errors {
     RFC821ERR_RECV,
     RFC821ERR_CMDSEQ,
     RFC821ERR_PATH,
+    RFC821ERR_TEMP
 };
 
 enum rfc821_flags {

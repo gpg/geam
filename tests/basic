@@ -203,6 +203,38 @@ fi
 outer_pid=""
 
 
+#------------------------------------------
+# Test:
+#------------------------------------------
+echo 'checking decryption against a loaded forwarding host ...'
+
+../src/simple-mta --loaded -lp 9025 >inner-host.out 2>inner-host.log &
+inner_pid="$!"
+sleep 1
+../src/simple-mta -v -p 8025 -f someone -t joe@i-cant-internet.com localhost x
+wait $inner_pid 2>/dev/null
+if [ -s inner-host.out ]; then
+    echo 'ERROR: message received'
+    fail=1
+    do_exit
+fi
+inner_pid=""
+
+# And again this time by closing the connection immediately.
+../src/simple-mta --loaded --loaded -lp 9025 >inner-host.out 2>inner-host.log &
+inner_pid="$!"
+sleep 1
+../src/simple-mta -p 8025 -f someone -t joe@i-cant-internet.com localhost x
+wait $inner_pid 2>/dev/null
+if [ -s inner-host.out ]; then
+    echo 'ERROR: message received'
+    fail=1
+    do_exit
+fi
+inner_pid=""
+
+
+
 # Add more tests here.	We should write a tool ala formail to
 # tweak the headers for compares.
 

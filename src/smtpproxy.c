@@ -1,5 +1,6 @@
 /* smtpproxy.c
  *	Copyright (C) 1999, 2000 Werner Koch, Duesseldorf
+ *      Copyright (C) 2004 g10 Code GmbH
  *
  * This file is part of GEAM.
  *
@@ -70,6 +71,7 @@ struct proxy_state {
     struct sockaddr *peer_addr;
     RFC821 smtphd;
     int fail_data;
+    int fail_data_temp;
     int fwd_fd;  /* fd of the smarthost connection */
     RFC821 fwd_smtphd;
     int rcvd_hdr_count;
@@ -88,7 +90,7 @@ struct proxy_state {
     struct {
 	RFC822 msg;
 	int fd;
-	int error;
+        int error; /* Error code as returned by rfc821. */
 	int in_header;
     } filter_eat;
 };
@@ -894,17 +896,21 @@ connect_smarthost( struct smarthost *sh )
 
 /****************
  * Open a connection to the Smarthost and initiate transaction.
+ * TEMP_FAILURE will be set on error if the error might be transient,
+ * e.g. the forwarding host is currently not available or overloaded.
+ *
  * Performance hint:  We could keep a list of pending connections and
  *		      reuse them for all threads.
  * Note:  This must be used after proc_header()
  */
 static int
-open_smarthost( PROXY_STATE state, RFC822 msg )
+open_smarthost( PROXY_STATE state, RFC822 msg, int *temp_failure )
 {
     int rc;
     const char *path;
     struct smarthost *sh;
 
+    *temp_failure = 0;
     /* figure out which one to use:
      * If we ae going to decrypt, we will always use the
      * inbound host.  If we have knowledge that the message
@@ -919,7 +925,10 @@ open_smarthost( PROXY_STATE state, RFC822 msg )
 	sh = &smarthost.inbound;
 
     if( (state->fwd_fd = connect_smarthost( sh )) == -1 )
+      {
+        *temp_failure = 1;
 	return -1;
+      }
 
     if( rw_init( state->fwd_fd ) ) {
 	log_error("%s rw_init(%d) failed\n", state->sid, state->fwd_fd );
@@ -939,6 +948,8 @@ open_smarthost( PROXY_STATE state, RFC822 msg )
 	log_error("%s rfc821_start_session failed: rc=%d\n", state->sid, rc );
 	rfc821_cancel( state->fwd_smtphd ); state->fwd_smtphd = NULL;
 	close( state->fwd_fd ); state->fwd_fd = -1;
+        if (rc == RFC821ERR_TEMP)
+          *temp_failure = 1;
 	return -1;
     }
 
@@ -961,6 +972,8 @@ open_smarthost( PROXY_STATE state, RFC822 msg )
 	log_error("%s failed to proxy sender path: %d\n", state->sid, rc );
 	rfc821_cancel( state->fwd_smtphd ); state->fwd_smtphd = NULL;
 	close( state->fwd_fd ); state->fwd_fd = -1;
+        if (rc == RFC821ERR_TEMP)
+          *temp_failure = 1;
 	return -1;
     }
 
@@ -977,6 +990,8 @@ open_smarthost( PROXY_STATE state, RFC822 msg )
 		 * recipients do fail and instead send a notification back */
 		rfc821_cancel( state->fwd_smtphd ); state->fwd_smtphd = NULL;
 		close( state->fwd_fd ); state->fwd_fd = -1;
+                if (rc == RFC821ERR_TEMP)
+                  *temp_failure = 1;
 		return -1;
 	    }
 	}
@@ -1009,6 +1024,8 @@ open_smarthost( PROXY_STATE state, RFC822 msg )
 		rfc821_enum_recipients( NULL, &ectx );
 		rfc821_cancel( state->fwd_smtphd ); state->fwd_smtphd = NULL;
 		close( state->fwd_fd ); state->fwd_fd = -1;
+                if (rc == RFC821ERR_TEMP)
+                  *temp_failure = 1;
 		return -1;
 	    }
 	    any = 1;
@@ -1030,6 +1047,8 @@ open_smarthost( PROXY_STATE state, RFC822 msg )
 		 * recipients do fail and instead send a notification back */
 		rfc821_cancel( state->fwd_smtphd ); state->fwd_smtphd = NULL;
 		close( state->fwd_fd ); state->fwd_fd = -1;
+                if (rc == RFC821ERR_TEMP)
+                  *temp_failure = 1;
 		return -1;
 	    }
 	}
@@ -1045,6 +1064,8 @@ open_smarthost( PROXY_STATE state, RFC822 msg )
 		 * recipients do fail and instead send a notification back */
 		rfc821_cancel( state->fwd_smtphd ); state->fwd_smtphd = NULL;
 		close( state->fwd_fd ); state->fwd_fd = -1;
+                if (rc == RFC821ERR_TEMP)
+                  *temp_failure = 1;
 		return -1;
 	    }
 	}
@@ -1197,7 +1218,7 @@ filter_eater( void *thread_arg )
 	count++;
 	rc = rfc821_send_body_line( proxy->fwd_smtphd, line, length );
 	if( rc ) {
-	    proxy->filter_eat.error = -1;
+	    proxy->filter_eat.error = rc;
 	    break;
 	}
     }
@@ -1596,8 +1617,10 @@ decrypt_eater( void *thread_arg )
 
 	    if( (rc = rfc821_copy_header_lines( proxy->fwd_smtphd,
 						proxy->filter_eat.msg)) ) {
-		log_error("%s copy header lines failed: rc=%d\n", proxy->sid, rc );
-		break;
+              proxy->filter_eat.error = rc;
+              log_error("%s copy header lines failed: rc=%d\n",
+                        proxy->sid, rc);
+              break;
 	    }
 	    prepared=1;
 	}
@@ -1605,7 +1628,7 @@ decrypt_eater( void *thread_arg )
 
 	rc = rfc821_send_body_line( proxy->fwd_smtphd, line, length );
 	if( rc ) {
-	    proxy->filter_eat.error = -1;
+	    proxy->filter_eat.error = rc;
 	    break;
 	}
     }
@@ -1685,7 +1708,6 @@ decryption_callback( PROXY_STATE proxy, RFC822 msg,
 	eater = NULL;
 
   failure:
-    /* fixme: make a note in proxy that we have a failure */
     if( feeder )
 	pth_abort( feeder );
     if( eater )
@@ -1732,8 +1754,9 @@ run_decryption_command( PROXY_STATE proxy, RFC822 msg )
 	free( argv[i] );
     free( argv );
 
-    if( status ) {
-	log_error("%s decryption failed: status=%d\n", proxy->sid, status );
+    if( status || proxy->filter_eat.error ) {
+	log_error("%s decryption failed: status=%d eat.error=%d\n",
+                  proxy->sid, status, proxy->filter_eat.error );
 	return -1;
     }
 
@@ -1743,10 +1766,11 @@ run_decryption_command( PROXY_STATE proxy, RFC822 msg )
 
 
 static int
-copy_data( PROXY_STATE proxy, RFC822 msg )
+copy_data( PROXY_STATE proxy, RFC822 msg, int *temp_failure )
 {
     int rc;
 
+    *temp_failure = 0;
     if( !proxy->fwd_smtphd ) {
 	log_error("%s copy_data w/o an open smarthost\n", proxy->sid );
 	return -1;
@@ -1754,10 +1778,13 @@ copy_data( PROXY_STATE proxy, RFC822 msg )
 
     assert( proxy->action != aCHECK_DECRYPT );
 
-
     if( proxy->action == aENCRYPT ) {
 	if( (rc = rfc821_copy_header_lines( proxy->fwd_smtphd, msg )) )
+          {
+            if (rc ==- RFC821ERR_TEMP)
+              *temp_failure = 1;
 	    goto failure;
+          }
 	if( (rc = rw_printf( proxy->fwd_fd,
 			     "\r\n"  /*better add one additional empty line */
 			     "--%s\r\n"
@@ -1770,8 +1797,12 @@ copy_data( PROXY_STATE proxy, RFC822 msg )
 			     "\r\n", proxy->boundary, proxy->boundary )  ))
 	    goto failure;
 
-	if( (rc = run_encryption_command( proxy, msg ) ) )
+        if( (rc = run_encryption_command( proxy, msg ) ) )
+          {
+            if (proxy->filter_eat.error == RFC821ERR_TEMP)
+              *temp_failure = 1;
 	    goto failure;
+          }
 
 	if( (rc = rw_printf( proxy->fwd_fd,
 			     "\r\n"
@@ -1780,22 +1811,39 @@ copy_data( PROXY_STATE proxy, RFC822 msg )
 			      proxy->boundary )  ))
 	    goto failure;
 	if( (rc = rfc821_send_body_line( proxy->fwd_smtphd, NULL, 0 )) )
-	    goto failure;
+          {
+            if (rc ==- RFC821ERR_TEMP)
+              *temp_failure = 1;
+            goto failure;
+          }
     }
     else if( proxy->action == aDECRYPT ) {
 	if( (rc = run_decryption_command( proxy, msg ) ) )
+          {
+            if (proxy->filter_eat.error == RFC821ERR_TEMP)
+              *temp_failure = 1;
 	    goto failure;
+          }
 
 	if( (rc = rfc821_send_body_line( proxy->fwd_smtphd, NULL, 0 )) )
+          {
+            if (rc == RFC821ERR_TEMP)
+              *temp_failure = 1;
 	    goto failure;
+          }
     }
     else {
-	if( (rc = rfc821_copy_header_lines( proxy->fwd_smtphd, msg )) )
-	    goto failure;
-	if( (rc = rfc821_copy_body_lines( proxy->fwd_smtphd, msg )) )
-	    goto failure;
-	if( (rc = rfc821_send_body_line( proxy->fwd_smtphd, NULL, 0 )) )
-	    goto failure;
+      rc = rfc821_copy_header_lines( proxy->fwd_smtphd, msg );
+      if (!rc)
+	rc = rfc821_copy_body_lines( proxy->fwd_smtphd, msg );
+      if (!rc)
+        rc = rfc821_send_body_line( proxy->fwd_smtphd, NULL, 0 );
+      if (rc)
+        {
+          if (rc == RFC821ERR_TEMP)
+            *temp_failure = 1;
+          goto failure;
+        }
     }
 
 
@@ -1825,12 +1873,13 @@ cb_from_rfc821( void *opaque, enum rfc821_events event, RFC821 smtp )
     switch( event ) {
       case RFC821EVT_DATA:
 	proxy->fail_data = 0;
+	proxy->fail_data_temp = 0;
 	proxy->rcvd_hdr_count = 0;
 	break;
 
       case RFC821EVT_DATA_END:
 	if( proxy->fail_data )
-	    rc = 1;
+          rc = proxy->fail_data_temp? 2 : 1;
 	break;
 
     }
@@ -1850,6 +1899,7 @@ cb_from_rfc822( void *opaque, enum rfc822_events event, RFC822 msg )
 {
     PROXY_STATE proxy = opaque;
     int rc = 0;
+    int temp_failure = 0;
 
     /*log_debug("fd %d: smtpproxy#cb_from_rfc822: event %d\n", proxy->fd, event );*/
     switch( event ) {
@@ -1857,8 +1907,12 @@ cb_from_rfc822( void *opaque, enum rfc822_events event, RFC822 msg )
 	proc_header( proxy, msg );
 	if( proxy->action == aCHECK_DECRYPT )
 	    ; /* we can't open the smarthost now */
-	else if( open_smarthost( proxy, msg ) )
+	else if( open_smarthost( proxy, msg, &temp_failure ) )
+          {
 	    proxy->fail_data = 1;
+            if (temp_failure)
+              proxy->fail_data_temp = 1;
+          }
 	break;
 
       case RFC822EVT_FINISH:
@@ -1868,15 +1922,22 @@ cb_from_rfc822( void *opaque, enum rfc822_events event, RFC822 msg )
 	    rc = run_check_decryption_command( proxy, msg );
 	    if( !rc ) {
 		/* now open the smarthost and proxy the data */
-		rc = open_smarthost( proxy, msg );
+		rc = open_smarthost( proxy, msg, &temp_failure);
 		if( !rc )
-		    rc = copy_data( proxy, msg );
+		    rc = copy_data( proxy, msg, &temp_failure );
 	    }
 	}
 	else
-	    rc = copy_data( proxy, msg );
+	    rc = copy_data( proxy, msg, &temp_failure );
 	if( rc )
+          {
 	    proxy->fail_data = 1;
+            if (temp_failure)
+              {
+                proxy->fail_data_temp = 1;
+                rc = 2;
+              }
+          }
 	break;
 
       case RFC822EVT_RCVD_SEEN:
@@ -1884,7 +1945,8 @@ cb_from_rfc822( void *opaque, enum rfc822_events event, RFC822 msg )
 	    proxy->fail_data = 1; /* mail looped */
 	break;
 
-      default: break;
+      default: 
+        break;
 
     }
 

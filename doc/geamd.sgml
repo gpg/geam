@@ -102,8 +102,8 @@
 
   <refsect1>
     <title>BUGS</title>
-    <para>Yes.</para>
-    <para>Please report them to <email>bug-geam@gnupg.de</email> and
+    <para>No serious bugs are known; your mileage may vary.</para>
+    <para>Please report them to <email>geam@g10code.com</email> and
     do not forget to include the version of the program and all
     the information to reproduce the problem.  Do dot send secret keys!
     A bug report may be forwarded to a public mailing list.</para>

@@ -1,3 +1,11 @@
+Noteworthy changes in version 0.8.3 (2004-03-31)
+------------------------------------------------
+
+* Fail gracefully on transient errors from MTAs.  This is especially
+  required if the MTA is temporary under a high load and won't accept
+  new data.
+
+
 Noteworthy changes in version 0.8.0
 -----------------------------------
 
