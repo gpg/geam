@@ -1,4 +1,6 @@
 
+Umschlüsseln von FDirmenkeys auf einzelne user
+
 When decryption failes, pass the message thru as it is.
 
 Do we need a spool file in rfc822? - No: let the system handle swapping.

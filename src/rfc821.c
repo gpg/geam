@@ -902,6 +902,8 @@ rfc821_send_body_line( RFC821 state, const char *line, size_t length )
 {
     if( !state->helo_seen_done )
 	return RFC821ERR_CMDSEQ;
+    if( !state->in_data )
+	return RFC821ERR_CMDSEQ;
 
     rw_timeout( state->fd, -1, 3*60 );
     if( line ) {
@@ -923,7 +925,8 @@ rfc821_send_body_line( RFC821 state, const char *line, size_t length )
 	if( rw_writen( state->fd, "\r\n", 2 ) )
 	    return RFC821ERR_SEND;
     }
-    else { /* write the end of data dot and wait on response */
+    else if (state->in_data) {
+        /* write the end of data dot and wait on response */
 	int reply;
 
 	rw_timeout( state->fd, 10*60, -1 );

@@ -1,3 +1,9 @@
+2003-08-12  Werner Koch  <wk@gnupg.org>
+
+	* src/rfc821.c (rfc821_send_body_line): Don't write the DATA END
+	command if we did not send a DATA command.
+	(rfc821_send_body_line): Return an error if we didn't send a DATA.
+
 2001-06-19  Werner Koch  <wk@gnupg.org>
 
         Released 0.8.2

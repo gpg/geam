@@ -11,7 +11,7 @@
 # You may want to use the owner of the corresponding key or the postmaster
 # for this address.
 #
-# In contrast to the "encrypt" table, we only the keyid here, as this
+# In contrast to the "encrypt" table, we only use the keyid here, as this
 # is the information stored in the OpenPGP message header.
 
 postmaster@localhost   gpg  5381EA4EE29BA37F
