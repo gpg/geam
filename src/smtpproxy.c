@@ -53,6 +53,14 @@
 #include "rfc821.h"
 #include "rfc822.h"
 
+/* Maximum number of connections we can handle concurrently.  This
+   must be far less than the number of filedescriptors rwbuf.c can
+   handle.  200 seems to be a reasonable high value for common
+   machines. */
+#define MAX_CONNECTIONS 200
+
+
+static int connection_counter;
 
 struct encrypt_item;
 struct decrypt_item;
@@ -564,6 +572,8 @@ smtpproxy_handler( int fd, const char *sessid, struct sockaddr *peer_addr,
     PROXY_STATE state = xcalloc( 1, sizeof *state );
     int i;
 
+    connection_counter++;
+
     state->sid = sessid;
     state->fd = fd;
     state->fwd_fd = -1;
@@ -573,6 +583,14 @@ smtpproxy_handler( int fd, const char *sessid, struct sockaddr *peer_addr,
 	log_error("fd %d: rw_init failed\n", fd );
 	goto leave;
     }
+
+    if (connection_counter > MAX_CONNECTIONS)
+      {
+        /* We are under a high load; don't even send a HELLO. */
+	log_error("%s too many connections - sending 421\n", state->sid );
+        rfc821_reply (fd, 421, NULL);
+        goto leave;
+      }
 
     state->smtphd = rfc821_open( cb_from_rfc821, state );
     if( !state->smtphd ) {
@@ -606,6 +624,7 @@ smtpproxy_handler( int fd, const char *sessid, struct sockaddr *peer_addr,
     free( state->fallback_recp );
     free( state );
     close( fd );
+    connection_counter--;
     return NULL;
 }
 
@@ -799,7 +818,9 @@ prepare_encryption( PROXY_STATE proxy, RFC822 msg )
     s = "Content-Type: multipart/encrypted; "
 		       "protocol=\"application/pgp-encrypted\";\n"
 		       "\tboundary=\"%s\"" ;
-    assert(!proxy->boundary);
+    /* After receiving a RSET a boundary will will be tehre so we have
+       to release it first. */
+    free (proxy->boundary);
     proxy->boundary = create_boundary();
     p = xmalloc( strlen(s) + strlen(proxy->boundary) + 10 );
     sprintf( p, s, proxy->boundary );
@@ -933,6 +954,11 @@ open_smarthost( PROXY_STATE state, RFC822 msg, int *temp_failure )
     if( rw_init( state->fwd_fd ) ) {
 	log_error("%s rw_init(%d) failed\n", state->sid, state->fwd_fd );
 	close( state->fwd_fd ); state->fwd_fd = -1;
+        /* The only reason why this may fail are out of memory
+           conditions and out of file descriptors.  The latter is for
+           sure a temporary problem, thus we have to fail only
+           temporary. */
+        *temp_failure = 1;
 	return -1;
     }
 

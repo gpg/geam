@@ -32,7 +32,8 @@
 #include "types.h"
 #include "rwbuf.h"
 
-#define MAX_FDS 40  /* fixme: figure out this value from the system */
+#define MAX_FDS 1024  /* Note, taht this also limits the number of
+                         concurrent connections we can process. */
 #define READ_BUFFER_SIZE  256
 #define WRITE_BUFFER_SIZE 128
 

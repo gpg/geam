@@ -61,6 +61,7 @@ int rfc821_handler( RFC821 state, int fd,
 		    const char *peer_addr_str, int peer_port );
 void rfc821_cancel( RFC821 hd );
 void rfc821_close( RFC821 hd );
+int rfc821_reply( int fd, int code, const char *desc );
 
 int rfc821_start_session( RFC821 state, int fd );
 int rfc821_send_sender( RFC821 state, const char *path );

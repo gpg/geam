@@ -232,7 +232,7 @@ rfc821_parse_cmd( char **rline, size_t len )
     return smtpINVALID;
 }
 
-static int
+int
 rfc821_reply( int fd, int code, const char *desc )
 {
     const char *string1 = "";

@@ -1,3 +1,22 @@
+2004-05-07  Werner Koch  <wk@gnupg.org>
+
+	Released 0.8.4.
+
+2004-04-21  Werner Koch  <wk@gnupg.org>
+
+	* src/smtpproxy.c (prepare_encryption): Don't bail out if a
+	boundary is still set.
+
+2004-04-20  Werner Koch  <wk@gnupg.org>
+
+	* src/rfc821.c (rfc821_reply): Made global.
+
+	* src/smtpproxy.c (open_smarthost): Fail only temporary if we
+	can't allocate a buffer.  Not really useful though.
+	(smtpproxy_handler): Keep a connection counter and limit the
+	number of connections to 200.
+	* src/rwbuf.c (MAX_FDS): Bumped up from 40 to 1024.
+
 2004-03-31  Werner Koch  <wk@gnupg.org>
 
 	Released 0.8.3
