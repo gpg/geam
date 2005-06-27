@@ -22,7 +22,7 @@ simple_mta_SOURCES = simple-mta.c \
 
 INCLUDES = -I$(top_srcdir)/lib $(PTH_CFLAGS)
 LDADD = ../lib/libutil.a $(PTH_LIBS)
-simple_mta_LDADD = ../lib/libutil.a
+simple_mta_LDADD = ../lib/libutil.a $(PTH_LIBS)
 
 if MAINTAINER_MODE
 
