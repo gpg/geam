@@ -2,6 +2,12 @@
 		    Version 0.8.3
 
 
+  BEWARE: GEAM has not been maintained for many years.  IT should
+  still build fine and work with recent gpg versions.  However we have
+  not done any tests.  The source has been pout into a GIT repo for
+  convenience.
+
+
 Installation:
 
   ./configure
